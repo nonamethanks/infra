@@ -23,9 +23,16 @@
 
 - name: Set zsh as default shell
   ansible.builtin.user:
-    name: "{{ lookup('env', 'USER') }}"
+    name: "{{ ansible_facts['env']['USER'] }}"
     shell: /bin/zsh
   become: true
+
+- name: symlink scripts from ./bin to $HOME/bin
+  ansible.builtin.file:
+    src: "{{ item }}"
+    dest: "{{ ansible_facts['env']['HOME'] }}/bin/{{ item | basename }}"
+    state: link
+  loop: "{{ lookup('fileglob', playbook_dir + '/../bin/*', wantlist=True) }}"
 
 - name: Install Linux Packages (script-managed)
   ansible.builtin.shell:
@@ -34,17 +41,21 @@
   loop: "{{ packages_linux_scripts }}"
   loop_control:
     label: "{{ item.name }}"
-  become: false
 
 - name: Install Chezmoi
   ansible.builtin.shell:
-    cmd: sh -c "$(curl -fsLS get.chezmoi.io)"
-    creates: "{{ lookup('env', 'HOME') }}/.local/bin/chezmoi"
-  become: false
+    cmd: sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "{{ ansible_facts['env']['HOME'] }}/bin"
+    creates: "{{ ansible_facts['env']['HOME'] }}/bin/chezmoi"
 
 - name: Init Chezmoi
   ansible.builtin.shell:
-    cmd: |
-      chezmoi init https://github.com/nonamethanks/dotfiles.git
-    creates: "{{ lookup('env', 'HOME') }}/.local/share/chezmoi/dot_zshrc"
-  become: false
+    cmd: "{{ ansible_facts['env']['HOME'] }}/bin/chezmoi init https://github.com/nonamethanks/dotfiles.git"
+    creates: "{{ ansible_facts['env']['HOME'] }}/.local/share/chezmoi/dot_zshrc"
+
+- name: Chezmoi ready
+  ansible.builtin.debug:
+    msg:
+      - "Dotfiles ready. Next steps:"
+      - "  {{ ansible_facts['env']['HOME'] }}/bin/chezmoi diff   # preview changes"
+      - "  {{ ansible_facts['env']['HOME'] }}/bin/chezmoi apply  # apply changes"
+      - "After applying, chezmoi will be available in your PATH."
