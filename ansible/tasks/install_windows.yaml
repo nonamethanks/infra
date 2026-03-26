@@ -38,3 +38,7 @@
   loop_control:
     label: "{{ item.name }}"
   when: item.name not in scoop_installed.stdout_lines
+
+- name: Install Chezmoi
+  ansible.windows.win_shell: scoop install chezmoi
+  when: chezmoi not in scoop_installed.stdout_lines

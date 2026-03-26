@@ -21,6 +21,12 @@
   when: missing_pkgs | length > 0
   become: true
 
+- name: Set zsh as default shell
+  ansible.builtin.user:
+    name: "{{ lookup('env', 'USER') }}"
+    shell: /bin/zsh
+  become: true
+
 - name: Install Linux Packages (script-managed)
   ansible.builtin.shell:
     cmd: "{{ item.cmd }}"
@@ -28,4 +34,17 @@
   loop: "{{ packages_linux_scripts }}"
   loop_control:
     label: "{{ item.name }}"
+  become: false
+
+- name: Install Chezmoi
+  ansible.builtin.shell:
+    cmd: sh -c "$(curl -fsLS get.chezmoi.io)"
+    creates: "{{ lookup('env', 'HOME') }}/.local/bin/chezmoi"
+  become: false
+
+- name: Init Chezmoi
+  ansible.builtin.shell:
+    cmd: |
+      chezmoi init https://github.com/nonamethanks/dotfiles.git
+    creates: "{{ lookup('env', 'HOME') }}/.local/share/chezmoi/dot_zshrc"
   become: false

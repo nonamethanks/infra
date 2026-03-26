@@ -2,12 +2,17 @@
 
 set -eou pipefail
 
+if [[ $EUID -eq 0 ]]; then
+    echo "Error: do not run this script as root or with sudo."
+    exit 1
+fi
+
 ANSIBLE_BIN="ansible"
 SCRIPTPATH=$(dirname "$(readlink -f "$0")")
 REPO_DIR=$(dirname "$SCRIPTPATH")
 
 function check_ansible {
-
+    # Checks if ansible is installed
     echo "Checking ansible..."
 
     if ! command -v "$ANSIBLE_BIN" &>/dev/null; then
@@ -28,12 +33,14 @@ function check_ansible {
 }
 
 function check_ansible_windows {
+    # Checks if ansible plugins for WSL -> Windows are installed
     check_ansible
 
     pipx inject ansible "pywinrm>=0.4.0"
 }
 
 function main() {
+    # Main loop
     command=${1:-install}
 
     if (($# > 0)); then
@@ -55,16 +62,18 @@ function main() {
 }
 
 function command_install_linux {
+    # Install all packages on Linux
     check_ansible
 
     set -x
-    ANSIBLE_CONFIG=$REPO_DIR/ansible.cfg "$ANSIBLE_BIN-playbook" "$REPO_DIR/ansible/install.yaml" --ask-become-pass "$@"
-    set +x
+    "$ANSIBLE_BIN-playbook" "$REPO_DIR/ansible/install.yaml" --ask-become-pass "$@"
+    { set +x; } 2>/dev/null
 
     echo "Done!"
 }
 
 function command_install_windows {
+    # Install all packages on Windows
     check_ansible_windows
 
     read -rsp "Windows password: " win_pass
@@ -81,8 +90,7 @@ function command_install_windows {
         > "$tmp_vars"
 
     set -x
-
-    ANSIBLE_CONFIG=$REPO_DIR/ansible.cfg "$ANSIBLE_BIN-playbook" "$REPO_DIR/ansible/install.yaml"     \
+    "$ANSIBLE_BIN-playbook" "$REPO_DIR/ansible/install.yaml"     \
         -e "target_os=windows"                                      \
         -e "ansible_host=$windows_host"                             \
         -e "ansible_connection=winrm"                               \
@@ -92,7 +100,7 @@ function command_install_windows {
         -e "ansible_winrm_message_encryption=always"                \
         -e "@$tmp_vars" \
         "$@"
-    set +x
+    { set +x; } 2>/dev/null
 
     echo "Done!"
 }

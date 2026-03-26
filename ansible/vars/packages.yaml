@@ -9,6 +9,7 @@ packages:
 
 packages_linux:
   - name: atool
+  - name: zsh
 
 packages_linux_scripts:
   - name: bitwarden-cli
@@ -17,6 +18,10 @@ packages_linux_scripts:
       unzip -o /tmp/bw.zip -d {{ lookup('env', 'HOME') }}/bin
       rm /tmp/bw.zip
     creates: "{{ lookup('env', 'HOME') }}/bin/bw"
+
+  - name: oh-my-zsh
+    cmd: sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+    creates: "{{ lookup('env', 'HOME') }}/.oh-my-zsh/oh-my-zsh.sh"
 
 packages_windows:
   # missing:
