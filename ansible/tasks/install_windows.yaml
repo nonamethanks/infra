@@ -1,0 +1,40 @@
+---
+- name: Check if Scoop is installed
+  ansible.windows.win_shell: scoop --version
+  register: scoop_check
+  failed_when: false
+  changed_when: false
+
+- name: Install Scoop
+  ansible.windows.win_shell: |
+    irm get.scoop.sh | iex
+  register: scoop_install
+  changed_when: scoop_check.rc != 0
+  when: scoop_check.rc != 0
+
+- name: Get existing Scoop buckets
+  ansible.windows.win_shell: scoop bucket list | Select-Object -ExpandProperty Name
+  register: scoop_buckets
+  changed_when: false
+
+- name: Add Scoop buckets
+  ansible.windows.win_shell: scoop bucket add {{ item }}
+  loop:
+    - extras
+    - games
+    - versions
+  loop_control:
+    label: "{{ item }}"
+  when: item not in scoop_buckets.stdout_lines
+
+- name: Get installed Scoop packages
+  ansible.windows.win_shell: scoop list | Select-Object -ExpandProperty Name
+  register: scoop_installed
+  changed_when: false
+
+- name: Install packages
+  ansible.windows.win_shell: scoop install {{ item.name }}
+  loop: "{{ packages + packages_windows }}"
+  loop_control:
+    label: "{{ item.name }}"
+  when: item.name not in scoop_installed.stdout_lines

@@ -1,0 +1,31 @@
+---
+- name: Validate become password
+  ansible.builtin.command: "true"
+  become: true
+  changed_when: false
+
+- name: Get installed packages
+  ansible.builtin.package_facts:
+    manager: apt
+
+- name: Install Linux Packages
+  ansible.builtin.package:
+    name: "{{ missing_pkgs }}"
+    state: present
+  vars:
+    all_pkgs: "{{ packages + packages_linux }}"
+    pkg_names: >-
+      {{ all_pkgs | selectattr('linux_name', 'defined') | map(attribute='linux_name') | list
+       + all_pkgs | rejectattr('linux_name', 'defined') | map(attribute='name') | list }}
+    missing_pkgs: "{{ pkg_names | difference(ansible_facts.packages.keys() | list) }}"
+  when: missing_pkgs | length > 0
+  become: true
+
+- name: Install Linux Packages (script-managed)
+  ansible.builtin.shell:
+    cmd: "{{ item.cmd }}"
+    creates: "{{ item.creates }}"
+  loop: "{{ packages_linux_scripts }}"
+  loop_control:
+    label: "{{ item.name }}"
+  become: false

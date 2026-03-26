@@ -1,0 +1,36 @@
+packages:
+  - name: curl
+  - name: git
+  - name: grep
+  - name: jq
+  - name: unzip
+  - name: wget
+  - { name: gpg, linux_name: gnupg }
+
+packages_linux:
+  - name: atool
+
+packages_linux_scripts:
+  - name: bitwarden-cli
+    cmd: |
+      curl -fsSL 'https://bitwarden.com/download/?app=cli&platform=linux' -o /tmp/bw.zip
+      unzip -o /tmp/bw.zip -d {{ lookup('env', 'HOME') }}/bin
+      rm /tmp/bw.zip
+    creates: "{{ lookup('env', 'HOME') }}/bin/bw"
+
+packages_windows:
+  # missing:
+  # vscode
+  # todo: check how settings are saved.
+  # notedpad++ had linked settings inside the folder, and missing context registry (C:\Users\nonamethanks\scoop\apps\notepadplusplus\current\install-context.reg)
+  # there must be a way to configure persistent data
+  # C:\Users\nonamethanks\scoop\persist
+
+  # programming
+  - name: bitwarden-cli
+  - name: filezilla
+  # utilities
+  - name: 7zip
+  - name: unigetui
+  - name: yt-dlp
+  - name: notepadplusplus
