@@ -1,15 +1,3 @@
-- name: Get current default shell
-  ansible.builtin.command:
-    cmd: getent passwd {{ ansible_facts['env']['USER'] }}
-  register: passwd_entry
-  changed_when: false
-
-- name: Set zsh as default shell
-  ansible.builtin.command:
-    cmd: usermod --shell /bin/zsh {{ ansible_facts['env']['USER'] }}
-  become: true
-  when: "'/bin/zsh' not in passwd_entry.stdout"
-
 - name: symlink scripts from ./bin to $HOME/bin
   ansible.builtin.file:
     src: "{{ script }}"

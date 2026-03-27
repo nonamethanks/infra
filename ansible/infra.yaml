@@ -3,8 +3,6 @@
   connection: local
   gather_facts: true
   any_errors_fatal: true
-  vars_files:
-    - vars/packages.yaml
   vars:
     install_target: "{{ (target_os | default('linux')) | lower }}"
     run_phase: "{{ (phase | default('install_packages')) | lower }}"
