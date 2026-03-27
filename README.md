@@ -22,3 +22,7 @@ TODO:
 * set the fucking vscode settings to view staged files as tree mode
 * how to share ubloc settings/userscripts/extensions for browsers?
 * https://stackoverflow.com/questions/8264655/how-to-make-powershell-tab-completion-work-like-bash
+* add docker compose configs, swap to traefik, add prometheus alarms
+* switch to versioned configs for everything *arr
+* find huntarr replacement
+* look into firefox user.json?
