@@ -4,6 +4,7 @@ set -eou pipefail
 
 
 function bitwarden_login {
+    echo "Logging into bitwarden..."
     bw login || true
 
     BW_SESSION=$(bw unlock --raw)

@@ -12,6 +12,10 @@ packages_linux:
   - name: zsh
 
 packages_linux_scripts:
+  - name: mise
+    cmd: curl https://mise.run | sh
+    creates: "{{ lookup('env', 'HOME') }}/.local/bin/mise"
+
   - name: bitwarden-cli
     cmd: |
       curl -fsSL 'https://bitwarden.com/download/?app=cli&platform=linux' -o /tmp/bw.zip
@@ -32,6 +36,7 @@ packages_windows:
   # C:\Users\nonamethanks\scoop\persist
 
   # programming
+  - name: mise
   - name: bitwarden-cli
   - name: filezilla
   # utilities

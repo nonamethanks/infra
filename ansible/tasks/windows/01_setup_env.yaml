@@ -9,9 +9,18 @@
   when: chezmoi_check.rc != 0
 
 - name: Init Chezmoi
-  ansible.windows.win_shell: chezmoi init nonamethanks --ssh
+  ansible.windows.win_shell: |
+    chezmoi init nonamethanks --ssh
+
+
+    chezmoi apply ~/.zshrc
+    chezmoi apply ~/.config/mise
   args:
     creates: "{{ ansible_env.USERPROFILE }}\\.local\\share\\chezmoi\\chezmoi.toml"
+
+- name: Install mise tools
+  ansible.windows.win_shell: |
+    mise install
 
 - name: Chezmoi ready
   ansible.builtin.debug:

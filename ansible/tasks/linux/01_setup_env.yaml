@@ -30,16 +30,26 @@
 
 - name: Init Chezmoi
   ansible.builtin.shell:
-    cmd: "{{ ansible_facts['env']['HOME'] }}/bin/chezmoi init nonamethanks --ssh"
+    cmd: |
+      {{ ansible_facts['env']['HOME'] }}/bin/chezmoi init nonamethanks --ssh
+
+      {{ ansible_facts['env']['HOME'] }}/bin/chezmoi apply ~/.zshrc
+      {{ ansible_facts['env']['HOME'] }}/bin/chezmoi apply ~/.config/mise
+
     creates: "{{ ansible_facts['env']['HOME'] }}/.local/share/chezmoi/dot_zshrc"
+
+- name: Install mise tools
+  ansible.builtin.shell:
+    cmd: |
+      mise install
 
 - name: Chezmoi ready
   ansible.builtin.debug:
     msg:
       - "Dotfiles ready. Next steps:"
-      - "  {{ ansible_facts['env']['HOME'] }}/bin/gpg_backup.sh export        # export existing GPG keys to bitwarden"
-      - "  {{ ansible_facts['env']['HOME'] }}/bin/gpg_backup.sh import        # import new GPG keys from bitwarden"
+      - "  gpg_backup.sh export        # export existing GPG keys to bitwarden"
+      - "  gpg_backup.sh import        # import new GPG keys from bitwarden"
       - ""
-      - "  {{ ansible_facts['env']['HOME'] }}/bin/chezmoi init --data=false   # pass user variables to chezmoi"
-      - "  {{ ansible_facts['env']['HOME'] }}/bin/chezmoi diff                # preview changes"
-      - "  {{ ansible_facts['env']['HOME'] }}/bin/chezmoi apply               # apply changes"
+      - "  chezmoi init --data=false   # pass user variables to chezmoi"
+      - "  chezmoi diff                # preview changes"
+      - "  chezmoi apply               # apply changes"
