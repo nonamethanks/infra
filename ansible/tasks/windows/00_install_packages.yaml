@@ -37,9 +37,9 @@
   changed_when: false
 
 - name: Install packages
-  ansible.windows.win_shell: scoop install {{ pkg.name }}
+  ansible.windows.win_shell: scoop install {{ pkg.windows_name | default(pkg.name) }}
   loop: "{{ packages + packages_windows }}"
   loop_control:
     loop_var: pkg
-    label: "{{ pkg.name }}"
-  when: pkg.name not in scoop_installed.stdout_lines
+    label: "{{ pkg.windows_name | default(pkg.name) }}"
+  when: pkg.windows_name | default(pkg.name) not in scoop_installed.stdout_lines

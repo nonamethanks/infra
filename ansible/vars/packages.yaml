@@ -1,6 +1,6 @@
 packages:
   - name: curl
-  - name: git
+  - { name: git, windows_name: mingit }
   - name: grep
   - name: jq
   - name: unzip
