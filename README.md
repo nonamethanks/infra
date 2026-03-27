@@ -7,11 +7,13 @@
 # Setup on linux or WSL:
 bin/infra.sh install_packages
 bin/infra.sh setup_env
+# setup_env will move binaries to ~/bin. Follow the instructions to complete the chezmoi setup to update path so they're available globally
+
 # run everything:
 bin/infra.sh setup_everything
 
 # Install on the windows host of a WSL, requires `.\windows\setup.ps1` to have been run on the host machine at least once
-bin/infra_windows.sh <command>
+bin/wsl/infra_windows.sh <command>
 ```
 
 
