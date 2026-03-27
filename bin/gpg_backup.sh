@@ -66,7 +66,7 @@ function export_gpg_keys {
         fi
         echo "Backing up private key $KEY"
         trap 'rm -f "$filename"' EXIT
-        gpg -a --export-secret-keys "$KEY" > "$filename"
+        gpg --pinentry-mode loopback -a --export-secret-keys "$KEY" > "$filename"
         bw create attachment --itemid "$BW_BACKUP_ID" --file "$filename" >/dev/null
         rm -f "$filename"
         trap - EXIT
@@ -154,9 +154,8 @@ function import_ownertrust {
 
 function command_export {
     PUBLIC_KEYS=$(gpg -a --export)
-    PRIVATE_KEYS=$(gpg -a --export-secret-keys)
 
-    if [[ -z "$PUBLIC_KEYS" ]] ||  [[ -z "$PRIVATE_KEYS" ]]; then
+    if [[ -z "$PUBLIC_KEYS" ]]; then
         echo "Nothing to export."
         exit 0
     fi
