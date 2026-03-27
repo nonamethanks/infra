@@ -10,7 +10,7 @@
 bin/infra.sh install
 
 # Install on the windows host of a WSL, requires `.\windows\setup.ps1` to have been run on the host machine at least once
-bin/infra.sh wininstall
+bin/infra_windows.sh install
 ```
 
 

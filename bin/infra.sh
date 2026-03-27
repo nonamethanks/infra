@@ -32,77 +32,67 @@ function check_ansible {
     $ANSIBLE_BIN --version
 }
 
-function check_ansible_windows {
-    # Checks if ansible plugins for WSL -> Windows are installed
-    check_ansible
-
-    pipx inject ansible "pywinrm>=0.4.0"
-}
-
 function main() {
-    # Main loop
-    command=${1:-install}
-
-    if (($# > 0)); then
-        shift
+    if (($# == 0)); then
+        echo "Usage: $(basename "$0") <command> [OPTIONS]"
+        echo "Commands:"
+        echo "  install"
+        exit 1
     fi
+
+    local command="$1"
+    shift
 
     case "$command" in
         install)
-            command_install_linux "$@"
-            ;;
-        wininstall)
-            command_install_windows "$@"
+            command_install "$@"
             ;;
         *)
-            echo "Command $command unknown."
+            echo "Error: unknown command '$command'"
+            echo "Usage: $(basename "$0") <command> [OPTIONS]"
+            echo "Commands:"
+            echo "  install"
             exit 1
             ;;
     esac
 }
 
-function command_install_linux {
+function command_install {
     # Install all packages on Linux
+    local ansible_args=("$@")
+
     check_ansible
 
+    # If windows target is requested, install Windows ansible modules and
+    # do not ask for Linux become password.
+    if command_install_target_is_windows "${ansible_args[@]}"; then
+        ensure_windows_ansible_modules
+    else
+        ansible_args+=("--ask-become-pass")
+    fi
+
     set -x
-    "$ANSIBLE_BIN-playbook" "$REPO_DIR/ansible/install.yaml" --ask-become-pass "$@"
+    "$ANSIBLE_BIN-playbook" "$REPO_DIR/ansible/install.yaml" "${ansible_args[@]}"
     { set +x; } 2>/dev/null
 
     echo "Done!"
 }
 
-function command_install_windows {
-    # Install all packages on Windows
-    check_ansible_windows
-
-    read -rsp "Windows password: " win_pass
-    echo
-
-    # In WSL2, localhost is the Linux VM. Default to the Windows host gateway IP.
-    windows_host=${WINDOWS_HOST:-$(awk '/^nameserver / { print $2; exit }' /etc/resolv.conf)}
-
-    tmp_vars=$(mktemp)
-    trap 'rm -f "$tmp_vars"' EXIT
-    printf '{"ansible_user": %s, "ansible_password": %s}' \
-        "$(printf '%s' ".\\$USER" | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()))')" \
-        "$(printf '%s' "$win_pass" | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()))')" \
-        > "$tmp_vars"
-
-    set -x
-    "$ANSIBLE_BIN-playbook" "$REPO_DIR/ansible/install.yaml"     \
-        -e "target_os=windows"                                      \
-        -e "ansible_host=$windows_host"                             \
-        -e "ansible_connection=winrm"                               \
-        -e "ansible_winrm_transport=credssp"                        \
-        -e "ansible_port=5986"                                      \
-        -e "ansible_winrm_server_cert_validation=ignore"            \
-        -e "ansible_winrm_message_encryption=always"                \
-        -e "@$tmp_vars" \
-        "$@"
-    { set +x; } 2>/dev/null
-
-    echo "Done!"
+function ensure_windows_ansible_modules {
+    pipx inject ansible "pywinrm>=0.4.0"
 }
 
-main "$@"
+function command_install_target_is_windows {
+    local arg
+    for arg in "$@"; do
+        if [[ "$arg" =~ (^|[[:space:]])target_os=windows($|[[:space:]]) ]]; then
+            return 0
+        fi
+    done
+
+    return 1
+}
+
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+    main "$@"
+fi
