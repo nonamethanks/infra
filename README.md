@@ -21,3 +21,4 @@ TODO:
 * fix all permissions and keep them consistent with git settings/vscode/precommit hooks
 * set the fucking vscode settings to view staged files as tree mode
 * how to share ubloc settings/userscripts/extensions for browsers?
+* https://stackoverflow.com/questions/8264655/how-to-make-powershell-tab-completion-work-like-bash
