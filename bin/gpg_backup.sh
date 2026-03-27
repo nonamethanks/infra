@@ -113,9 +113,16 @@ function import_gpg_keys {
     for file in $(echo "$BW_BACKUP_ATTACHMENTS" | grep -E '^(pub|priv)_[A-F0-9]{40}\.asc$'); do
         fingerprint=$(echo "$file" | grep -oP '[A-F0-9]{40}')
 
-        if gpg --list-keys "$fingerprint" &>/dev/null; then
-            echo "Key $fingerprint already exists, skipping $file"
-            continue
+        if [[ "$file" == priv_* ]]; then
+            if gpg --list-secret-keys "$fingerprint" &>/dev/null; then
+                echo "Key $fingerprint already exists, skipping $file"
+                continue
+            fi
+        else
+            if gpg --list-keys "$fingerprint" &>/dev/null; then
+                echo "Key $fingerprint already exists, skipping $file"
+                continue
+            fi
         fi
 
         echo "Importing $file..."
@@ -154,6 +161,7 @@ function command_export {
         exit 0
     fi
 
+    bitwarden_login
     bw sync
 
     get_or_create_backup_file
@@ -164,6 +172,7 @@ function command_export {
 
 
 function command_import {
+    bitwarden_login
     bw sync
 
     get_or_create_backup_file
@@ -193,6 +202,8 @@ function main() {
             exit 1
             ;;
     esac
+
+    echo "Done!"
 }
 
 

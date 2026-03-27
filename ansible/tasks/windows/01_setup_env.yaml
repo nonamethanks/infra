@@ -16,7 +16,12 @@
 - name: Chezmoi ready
   ansible.builtin.debug:
     msg:
-      - "Dotfiles ready. Next steps:"
-      - "  chezmoi diff   # preview changes"
-      - "  chezmoi apply  # apply changes"
-      - "After applying, open a new terminal session to pick up shell/profile changes."
+      - "Dotfiles ready. Next steps (on Powershell):"
+      - "  gpg_sync.sh from           # import windows keys from windows to wsl"
+      - "  gpg_backup.sh export       # export existing GPG keys to bitwarden"
+      - "  gpg_backup.sh import       # import new GPG keys from bitwarden"
+      - "  gpg_sync.sh to             # export the new keys back to windows"
+      - ""
+      - "  chezmoi init --data=false   # pass user variables to chezmoi"
+      - "  chezmoi diff                # preview changes"
+      - "  chezmoi apply               # apply changes"

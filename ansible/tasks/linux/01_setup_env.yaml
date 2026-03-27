@@ -28,6 +28,9 @@
   ansible.builtin.debug:
     msg:
       - "Dotfiles ready. Next steps:"
-      - "  {{ ansible_facts['env']['HOME'] }}/bin/chezmoi diff   # preview changes"
-      - "  {{ ansible_facts['env']['HOME'] }}/bin/chezmoi apply  # apply changes"
-      - "After applying, chezmoi will be available in your PATH."
+      - "  {{ ansible_facts['env']['HOME'] }}/bin/gpg_backup.sh export        # export existing GPG keys to bitwarden"
+      - "  {{ ansible_facts['env']['HOME'] }}/bin/gpg_backup.sh import        # import new GPG keys from bitwarden"
+      - ""
+      - "  {{ ansible_facts['env']['HOME'] }}/bin/chezmoi init --data=false   # pass user variables to chezmoi"
+      - "  {{ ansible_facts['env']['HOME'] }}/bin/chezmoi diff                # preview changes"
+      - "  {{ ansible_facts['env']['HOME'] }}/bin/chezmoi apply               # apply changes"

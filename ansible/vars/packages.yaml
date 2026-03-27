@@ -1,6 +1,6 @@
 packages:
   - name: curl
-  - { name: git, windows_name: mingit }
+  - { name: git, windows_name: mingit } # don't install the bash for windows crap
   - name: grep
   - name: jq
   - name: unzip
