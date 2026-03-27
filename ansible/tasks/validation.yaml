@@ -1,0 +1,40 @@
+- name: Validate target_os value
+  ansible.builtin.assert:
+    that:
+      - install_target in ['linux', 'windows']
+    fail_msg: "target_os must be 'linux' or 'windows'"
+
+- name: Discover task files for target OS
+  ansible.builtin.set_fact:
+    phase_task_files: >-
+      {{
+        (
+          query('ansible.builtin.fileglob', playbook_dir ~ '/tasks/' ~ install_target ~ '/*.yaml')
+          + query('ansible.builtin.fileglob', playbook_dir ~ '/tasks/' ~ install_target ~ '/*.yml')
+        ) | sort
+      }}
+
+- name: Validate task files exist for target OS
+  ansible.builtin.assert:
+    that:
+      - phase_task_files | length > 0
+    fail_msg: "No task files found for target_os '{{ install_target }}'"
+
+- name: Build available phases from task filenames
+  ansible.builtin.set_fact:
+    available_phases: "{{ phase_task_files | map('basename') | map('regex_replace', '\\.(ya?ml)$', '') | map('regex_replace', '^[0-9]+[_-]', '') | list }}"
+
+- name: Validate phase value
+  ansible.builtin.assert:
+    that:
+      - run_phase in (available_phases + ['setup_everything', 'list_phases'])
+    fail_msg: "phase must be one of: {{ (available_phases + ['setup_everything', 'list_phases']) | unique | sort | join(', ') }}"
+
+- name: List available phases
+  ansible.builtin.debug:
+    msg: "{{ ['Available phases for target_os=' + install_target + ':'] + (available_phases + ['setup_everything']) | unique | sort | map('regex_replace', '^', '  ') | list }}"
+  when: run_phase == 'list_phases'
+
+- name: Stop after listing phases
+  ansible.builtin.meta: end_play
+  when: run_phase == 'list_phases'

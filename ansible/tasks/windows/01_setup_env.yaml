@@ -1,0 +1,22 @@
+- name: Check if Chezmoi is available
+  ansible.windows.win_shell: chezmoi --version
+  register: chezmoi_check
+  failed_when: false
+  changed_when: false
+
+- name: Install Chezmoi with Scoop when missing
+  ansible.windows.win_shell: scoop install chezmoi
+  when: chezmoi_check.rc != 0
+
+- name: Init Chezmoi
+  ansible.windows.win_shell: chezmoi init https://github.com/nonamethanks/dotfiles.git
+  args:
+    creates: "{{ ansible_env.USERPROFILE }}\\.local\\share\\chezmoi\\chezmoi.toml"
+
+- name: Chezmoi ready
+  ansible.builtin.debug:
+    msg:
+      - "Dotfiles ready. Next steps:"
+      - "  chezmoi diff   # preview changes"
+      - "  chezmoi apply  # apply changes"
+      - "After applying, open a new terminal session to pick up shell/profile changes."

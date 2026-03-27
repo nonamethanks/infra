@@ -33,46 +33,76 @@ function check_ansible {
 }
 
 function main() {
-    if (($# == 0)); then
-        echo "Usage: $(basename "$0") <command> [OPTIONS]"
-        echo "Commands:"
-        echo "  install"
-        exit 1
+    local show_help=false
+    local phase=""
+    local ansible_args=()
+
+    while (($# > 0)); do
+        case "$1" in
+            -h|--help)
+                show_help=true
+                ;;
+            *)
+                ansible_args+=("$1")
+                ;;
+        esac
+        shift
+    done
+
+    if [[ "$show_help" == "true" ]]; then
+        if ((${#ansible_args[@]} > 0)) && [[ "${ansible_args[0]}" != -* ]]; then
+            ansible_args=("${ansible_args[@]:1}")
+        fi
+        print_help "${ansible_args[@]}"
+        return
     fi
 
-    local command="$1"
-    shift
+    # Optional first positional argument is treated as phase; if omitted,
+    # Ansible defaults/validation decide behavior.
+    if ((${#ansible_args[@]} > 0)) && [[ "${ansible_args[0]}" != -* ]]; then
+        phase="${ansible_args[0]}"
+        ansible_args=("${ansible_args[@]:1}")
+    fi
 
-    case "$command" in
-        install)
-            command_install "$@"
-            ;;
-        *)
-            echo "Error: unknown command '$command'"
-            echo "Usage: $(basename "$0") <command> [OPTIONS]"
-            echo "Commands:"
-            echo "  install"
-            exit 1
-            ;;
-    esac
+    run_phase "$phase" "${ansible_args[@]}"
 }
 
-function command_install {
-    # Install all packages on Linux
+function print_help {
+    local ansible_args=("$@")
+
+    echo "Usage: $(basename "$0") [phase] [ansible-playbook options]"
+    echo "       $(basename "$0") -h [ansible-playbook options]"
+    echo ""
+    echo "Discovering available phases via Ansible..."
+    run_phase "list_phases" "${ansible_args[@]}"
+}
+
+function run_phase {
+    # Run infra playbook; phase handling and validation are defined in Ansible.
+    local phase="$1"
+    shift
     local ansible_args=("$@")
 
     check_ansible
 
-    # If windows target is requested, install Windows ansible modules and
-    # do not ask for Linux become password.
-    if command_install_target_is_windows "${ansible_args[@]}"; then
-        ensure_windows_ansible_modules
-    else
-        ansible_args+=("--ask-become-pass")
+    # For phase discovery/help, skip module installation and sudo prompts.
+    if [[ "$phase" != "list_phases" ]]; then
+        # If windows target is requested, install Windows ansible modules.
+        if command_install_target_is_windows "${ansible_args[@]}"; then
+            ensure_windows_ansible_modules
+        else
+            # Ask for sudo password on regular Linux execution.
+            ansible_args+=("--ask-become-pass")
+        fi
     fi
 
+    local playbook_cmd=("$ANSIBLE_BIN-playbook" "$REPO_DIR/ansible/infra.yaml")
+    if [[ -n "$phase" ]]; then
+        playbook_cmd+=("-e" "phase=$phase")
+    fi
+    playbook_cmd+=("${ansible_args[@]}")
     set -x
-    "$ANSIBLE_BIN-playbook" "$REPO_DIR/ansible/install.yaml" "${ansible_args[@]}"
+    "${playbook_cmd[@]}"
     { set +x; } 2>/dev/null
 
     echo "Done!"

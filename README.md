@@ -4,13 +4,14 @@
 ```
 
 ```sh
-# First time installation
-
-# Install on linux or WSL:
-bin/infra.sh install
+# Setup on linux or WSL:
+bin/infra.sh install_packages
+bin/infra.sh setup_env
+# run everything:
+bin/infra.sh setup_everything
 
 # Install on the windows host of a WSL, requires `.\windows\setup.ps1` to have been run on the host machine at least once
-bin/infra_windows.sh install
+bin/infra_windows.sh <command>
 ```
 
 

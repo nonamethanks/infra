@@ -1,0 +1,20 @@
+- name: Run Infra Tasks
+  hosts: localhost
+  connection: local
+  gather_facts: true
+  any_errors_fatal: true
+  vars_files:
+    - vars/packages.yaml
+  vars:
+    install_target: "{{ (target_os | default('linux')) | lower }}"
+    run_phase: "{{ (phase | default('install_packages')) | lower }}"
+  tasks:
+    - name: Validate and discover phases
+      ansible.builtin.include_tasks: tasks/validation.yaml
+
+    - name: Include matching phase tasks
+      ansible.builtin.include_tasks: "{{ item }}"
+      loop: "{{ phase_task_files }}"
+      vars:
+        file_phase: "{{ item | basename | regex_replace('\\.(ya?ml)$', '') | regex_replace('^[0-9]+[_-]', '') }}"
+      when: run_phase == 'setup_everything' or run_phase == file_phase
