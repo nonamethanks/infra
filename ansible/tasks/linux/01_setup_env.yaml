@@ -6,10 +6,12 @@
 
 - name: symlink scripts from ./bin to $HOME/bin
   ansible.builtin.file:
-    src: "{{ item }}"
-    dest: "{{ ansible_facts['env']['HOME'] }}/bin/{{ item | basename }}"
+    src: "{{ script }}"
+    dest: "{{ ansible_facts['env']['HOME'] }}/bin/{{ script | basename }}"
     state: link
   loop: "{{ lookup('fileglob', playbook_dir + '/../bin/*', wantlist=True) }}"
+  loop_control:
+    loop_var: script
 
 - name: Ensure Chezmoi is installed
   ansible.builtin.shell:
