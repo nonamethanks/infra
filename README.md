@@ -26,3 +26,4 @@ TODO:
 * switch to versioned configs for everything *arr
 * find huntarr replacement
 * look into firefox user.json?
+* fix it so that chezmoi already comes with all the necessary params. Maybe ansible inputs?
