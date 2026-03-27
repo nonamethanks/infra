@@ -21,7 +21,7 @@
 
 - name: Init Chezmoi
   ansible.builtin.shell:
-    cmd: "{{ ansible_facts['env']['HOME'] }}/bin/chezmoi init https://github.com/nonamethanks/dotfiles.git"
+    cmd: "{{ ansible_facts['env']['HOME'] }}/bin/chezmoi init nonamethanks --ssh"
     creates: "{{ ansible_facts['env']['HOME'] }}/.local/share/chezmoi/dot_zshrc"
 
 - name: Chezmoi ready

@@ -9,7 +9,7 @@
   when: chezmoi_check.rc != 0
 
 - name: Init Chezmoi
-  ansible.windows.win_shell: chezmoi init https://github.com/nonamethanks/dotfiles.git
+  ansible.windows.win_shell: chezmoi init nonamethanks --ssh
   args:
     creates: "{{ ansible_env.USERPROFILE }}\\.local\\share\\chezmoi\\chezmoi.toml"
 
