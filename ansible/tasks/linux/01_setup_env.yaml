@@ -1,3 +1,9 @@
+- name: Check if running in WSL
+  ansible.builtin.command: grep -qi microsoft /proc/version
+  register: wsl_check
+  failed_when: false
+  changed_when: false
+
 - name: symlink scripts from ./bin to $HOME/bin
   ansible.builtin.file:
     src: "{{ script }}"
@@ -6,6 +12,7 @@
   loop: "{{ lookup('fileglob', playbook_dir + '/../bin/*', wantlist=True) }}"
   loop_control:
     loop_var: script
+  when: script | basename != 'infra_windows.sh' or wsl_check.rc == 0
 
 - name: Ensure Chezmoi is installed
   ansible.builtin.shell:

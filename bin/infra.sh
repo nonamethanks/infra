@@ -7,7 +7,7 @@ if [[ $EUID -eq 0 ]]; then
     exit 1
 fi
 
-ANSIBLE_BIN="ansible"
+ANSIBLE_PATH="$HOME/.local/bin"
 SCRIPTPATH=$(dirname "$(readlink -f "$0")")
 REPO_DIR=$(dirname "$SCRIPTPATH")
 
@@ -15,12 +15,8 @@ function check_ansible {
     # Checks if ansible is installed
     echo "Checking ansible..."
 
-    if ! command -v "$ANSIBLE_BIN" &>/dev/null; then
-        ANSIBLE_BIN="$HOME/.local/bin/ansible"
-    fi
-
-    if command -v "$ANSIBLE_BIN" &>/dev/null; then
-        echo "Ansible is already installed: $($ANSIBLE_BIN --version | head -1)"
+    if [[ -f "$ANSIBLE_PATH/ansible" ]]; then
+        echo "Ansible is already installed: $(\$ANSIBLE_PATH/ansible --version | head -1)"
         return
     fi
 
@@ -29,7 +25,7 @@ function check_ansible {
     sudo apt-get -y install pipx
     pipx install --include-deps ansible
 
-    $ANSIBLE_BIN --version
+    "$ANSIBLE_PATH/ansible" --version
 }
 
 function main() {
@@ -96,7 +92,7 @@ function run_phase {
         fi
     fi
 
-    local playbook_cmd=("$ANSIBLE_BIN-playbook" "$REPO_DIR/ansible/infra.yaml")
+    local playbook_cmd=("$ANSIBLE_PATH/ansible-playbook" "$REPO_DIR/ansible/infra.yaml")
     if [[ -n "$phase" ]]; then
         playbook_cmd+=("-e" "phase=$phase")
     fi
@@ -109,7 +105,7 @@ function run_phase {
 }
 
 function ensure_windows_ansible_modules {
-    pipx inject ansible "pywinrm>=0.4.0"
+    pipx inject ansible "pywinrm>=0.4.0" requests-credssp
 }
 
 function command_install_target_is_windows {
