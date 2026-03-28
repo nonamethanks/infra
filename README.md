@@ -18,6 +18,11 @@ bin/wsl/infra_windows.sh <command>
 
 
 TODO:
+* set chezmoi as a subrepo of this repo https://stackoverflow.com/questions/5828324/update-git-submodule-to-latest-commit-on-origin
+* fix it so that chezmoi already comes with all the necessary params. Maybe ansible inputs?
+* fix mise task
+* git clone this repo -> install mise -> install tools (like ansible) -> should have everything to run the rest of the tasks
+
 * fix all permissions and keep them consistent with git settings/vscode/precommit hooks
 * set the fucking vscode settings to view staged files as tree mode
 * how to share ubloc settings/userscripts/extensions for browsers?
@@ -26,4 +31,3 @@ TODO:
 * switch to versioned configs for everything *arr
 * find huntarr replacement
 * look into firefox user.json?
-* fix it so that chezmoi already comes with all the necessary params. Maybe ansible inputs?
