@@ -16,8 +16,15 @@ if [[ $- != *i* ]]; then
 fi
 
 #################### COMMON VARIABLES ####################
+
+if [[ ":$PATH:" != *":$HOME/bin:"* ]]; then
+     export PATH="$PATH:$HOME/bin"
+fi
+
 # shellcheck disable=SC2155
 export SCRIPT_DIR="$(dirname "$(dirname "$(readlink -f "$0")")")"
+export BIN_DIR="$HOME/bin"
+export MISE_INSTALL_PATH="$BIN_DIR/mise"
 
 #################### COMMON FUNCTIONS ####################
 
