@@ -46,6 +46,58 @@ function apply_chezmoi {
     chezmoi merge-all && chezmoi apply --interactive
 }
 
+function install_missing_mise_tools {
+    mise install -q
+}
+
+function check_or_install_zsh {
+    current_shell=$(getent passwd "$USER" | awk -F: '{print $NF}' | awk -F/ '{print $NF}')
+    if [[ $current_shell != "*/zsh" ]]; then return; fi
+
+    echo "Current shell is $current_shell != /bin/zsh. Installing..."
+
+    if ! command -v zsh; then
+        sudo apt-get install -y zsh # TODO: abstract this to use the system's package manager
+    fi
+
+    echo "Setting ZSH as shell for user $USER."
+    sudo usermod --shell /bin/zsh "$USER"
+}
+
+function set_ssh_for_github {
+    # Export GPG key as SSH public key if not already done
+    pub_ssh_key="$HOME/.ssh/id_rsa_github_$USER.pub"
+    if [[ ! -f $pub_ssh_key ]]; then
+        echo "Exporting gpg key to $pub_ssh_key"
+        gpg --export-ssh-key "$(chezmoi data | jq -r '.signingKey')" > "$pub_ssh_key"
+    fi
+
+    # Point SSH to gpg-agent socket so it uses your GPG auth key
+    # shellcheck disable=SC2155
+    export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+    # this needs to be global or ssh for github via gpg won't work
+
+    # Make sure gpg-agent is running
+    # gpg-connect-agent /bye > /dev/null 2>&1
+
+    # Register the auth subkey with gpg-agent if not already there
+    if [[ ! -f ~/.gnupg/sshcontrol ]]; then
+        auth_keygrip=$(gpg --list-keys --with-keygrip "$(chezmoi data | jq -r '.signingKey')" 2> /dev/null |
+            awk '/\[A\]/{found=1} found && /Keygrip/{print $3; exit}')
+
+        echo "Registering auth keygrip $auth_keygrip with gpg-agent"
+        if [[ -n $auth_keygrip ]] && ! grep -q "$auth_keygrip" ~/.gnupg/sshcontrol 2> /dev/null; then
+            echo "$auth_keygrip" >> ~/.gnupg/sshcontrol
+        fi
+    fi
+
+    # Authenticate with GitHub if needed
+    if ! gh auth status > /dev/null 2>&1; then
+        gh auth login --hostname github.com --git-protocol ssh --web
+        gh auth setup-git
+    fi
+}
+
 function check_prerequisites {
     check_or_install_mise
     check_or_import_gpg
@@ -53,11 +105,9 @@ function check_prerequisites {
     check_or_install_chezmoi
     apply_chezmoi
 
-    # check_or_install_zsh
-    # set_ssh_for_github
-
-    # echo "Basic parts of the system have been setup. Now run this to continue:."
-    # echo "  infra.sh setup_everything"
+    install_missing_mise_tools
+    check_or_install_zsh
+    set_ssh_for_github
 }
 
 function main {

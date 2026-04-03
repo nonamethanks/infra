@@ -22,34 +22,3 @@
   loop_control:
     loop_var: script
   when: wsl_check.rc == 0
-
-- name: Ensure Chezmoi is installed
-  ansible.builtin.shell:
-    cmd: sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "{{ ansible_facts['env']['HOME'] }}/bin"
-    creates: "{{ ansible_facts['env']['HOME'] }}/bin/chezmoi"
-
-- name: Init Chezmoi
-  ansible.builtin.shell:
-    cmd: |
-      {{ ansible_facts['env']['HOME'] }}/bin/chezmoi init nonamethanks --ssh
-
-      {{ ansible_facts['env']['HOME'] }}/bin/chezmoi apply ~/.zshrc
-      {{ ansible_facts['env']['HOME'] }}/bin/chezmoi apply ~/.config/mise
-
-    creates: "{{ ansible_facts['env']['HOME'] }}/.local/share/chezmoi/dot_zshrc"
-
-- name: Install mise tools
-  ansible.builtin.shell:
-    cmd: |
-      mise install
-
-- name: Chezmoi ready
-  ansible.builtin.debug:
-    msg:
-      - "Dotfiles ready. Next steps:"
-      - "  gpg_backup.sh export        # export existing GPG keys to bitwarden"
-      - "  gpg_backup.sh import        # import new GPG keys from bitwarden"
-      - ""
-      - "  chezmoi init --data=false   # pass user variables to chezmoi"
-      - "  chezmoi diff                # preview changes"
-      - "  chezmoi apply               # apply changes"

@@ -11,32 +11,17 @@ packages_linux:
   - name: atool
   - name: zsh
 
-packages_linux_scripts:
-  - name: mise
-    cmd: curl https://mise.run | sh
-    creates: "{{ lookup('env', 'HOME') }}/.local/bin/mise"
-
-  - name: bitwarden-cli
-    cmd: |
-      curl -fsSL 'https://bitwarden.com/download/?app=cli&platform=linux' -o /tmp/bw.zip
-      unzip -o /tmp/bw.zip -d {{ lookup('env', 'HOME') }}/bin
-      rm /tmp/bw.zip
-    creates: "{{ lookup('env', 'HOME') }}/bin/bw"
-
-  - name: oh-my-zsh
-    cmd: sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-    creates: "{{ lookup('env', 'HOME') }}/.oh-my-zsh/oh-my-zsh.sh"
-
 packages_windows:
   # missing:
   # vscode
   # todo: check how settings are saved.
   # notedpad++ had linked settings inside the folder, and missing context registry (C:\Users\nonamethanks\scoop\apps\notepadplusplus\current\install-context.reg)
   # there must be a way to configure persistent data
+  # notepad++ is not persising the settings between restarts, maddening
   # C:\Users\nonamethanks\scoop\persist
 
   # programming
-  - name: mise
+  - name: mise # fix this: needs to use mise to install the rest
   - name: bitwarden-cli
   - name: filezilla
   # utilities

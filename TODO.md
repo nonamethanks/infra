@@ -1,12 +1,6 @@
 TODO:
-* set chezmoi as a subrepo of this repo https://stackoverflow.com/questions/5828324/update-git-submodule-to-latest-commit-on-origin
-* fix it so that chezmoi already comes with all the necessary params. Maybe ansible inputs?
-* fix mise task
-* git clone this repo -> install mise -> install tools (like ansible) -> should have everything to run the rest of the tasks
-
-* fix all permissions and keep them consistent with git settings/vscode/precommit hooks
 * set the fucking vscode settings to view staged files as tree mode
-* how to share ubloc settings/userscripts/extensions for browsers?
+* how to share ublock settings/userscripts/extensions for browsers?
 * https://stackoverflow.com/questions/8264655/how-to-make-powershell-tab-completion-work-like-bash
 * add docker compose configs, swap to traefik
 * add prometheus alarms
@@ -27,3 +21,8 @@ TODO:
 * calendar integration into homepage
 * cleanup old symlinks in bin
 * fucking disable the retarded vscode collapsed terminal
+* use delta as diff?
+* add gh
+* add script to push/pull/commit repo and make sure all commits aren't using the wrong credentials before pushing
+* alias sqlite -> sqlite3, find out a way to compile with tab completion
+* infra.sh update-system, otherwise mise should not install if not missing

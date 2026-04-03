@@ -7,6 +7,7 @@
 
 if [[ $- != *i* ]]; then
     set -e              # stop if any command has exit status == 0
+    set -E              # inherit traps so that cleanup() can work
     set -o pipefail     # prevent nested errors from being masked
     set -u              # stop if any variable is unset
 
@@ -32,3 +33,20 @@ function abort_if_root {
 function is_blank_variable {
     [[ -z ${1//[[:space:]]/}  ]]
 }
+
+cleanup_cmds=()
+_cleanup_done=0
+
+# run cleanup code added to the cleanup_cmds array
+function cleanup {
+    local exit_code=$?
+    [[ $_cleanup_done -eq 1 ]] && return
+    _cleanup_done=1
+    for ((i = ${#cleanup_cmds[@]} - 1; i >= 0; i--)); do
+        echo "[CLEANUP] running cleanup: ${cleanup_cmds[$i]}"
+        eval "${cleanup_cmds[$i]}" || true
+    done
+    exit "$exit_code"
+}
+
+trap cleanup EXIT INT TERM ERR

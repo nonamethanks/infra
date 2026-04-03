@@ -10,9 +10,6 @@
             }
         }
     ],
-    "[shellscript]": {
-        "editor.defaultFormatter": "mkhl.shfmt"
-    },
     "shellcheck.logLevel": "debug",
     "shellcheck.executablePath": "${workspaceFolder}/.vscode/mise-tools/shellcheck",
     "shellcheck.useWorkspaceRootAsCwd": true,
@@ -20,5 +17,16 @@
     "bashIde.shfmt.path": "", // bashIde sucks and doesnt support mise binaries
     "bashIde.includeAllWorkspaceSymbols": true,
     "bashIde.logLevel": "debug",
-    "bashIde.shellcheckPath": "", // bashIde sucks and doesnt support mise binaries
+    "bashIde.shellcheckPath": "",
+    "python.defaultInterpreterPath": "${workspaceFolder}/.vscode/mise-tools/python", // bashIde sucks and doesnt support mise binaries
+    "editor.insertSpaces": true,
+    "editor.tabSize": 4,
+    "editor.detectIndentation": false,
+    "[shellscript]": {
+        "editor.defaultFormatter": "mkhl.shfmt",
+        // the retard who made this extension decided it was a brilliant idea to fuck with its users
+        // by overwriting random fucking settings like a retard. Retard!
+        "editor.insertSpaces": true,
+        "editor.detectIndentation": false
+    },
 }

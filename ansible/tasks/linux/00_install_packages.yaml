@@ -1,5 +1,5 @@
 - name: Load package variables
-  ansible.builtin.include_vars: "{{ playbook_dir }}/vars/packages.yaml"
+  ansible.builtin.include_vars: "{{ playbook_dir }}/packages.yaml"
 
 - name: Get installed packages
   ansible.builtin.package_facts:
@@ -29,12 +29,3 @@
     cmd: usermod --shell /bin/zsh {{ ansible_facts['env']['USER'] }}
   become: true
   when: "'/bin/zsh' not in passwd_entry.stdout"
-
-- name: Install Linux Packages (script-managed)
-  ansible.builtin.shell:
-    cmd: "{{ pkg.cmd }}"
-    creates: "{{ pkg.creates }}"
-  loop: "{{ packages_linux_scripts }}"
-  loop_control:
-    loop_var: pkg
-    label: "{{ pkg.name }}"

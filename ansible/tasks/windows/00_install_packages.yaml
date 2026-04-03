@@ -1,6 +1,6 @@
 ---
 - name: Load package variables
-  ansible.builtin.include_vars: "{{ playbook_dir }}/vars/packages.yaml"
+  ansible.builtin.include_vars: "{{ playbook_dir }}/packages.yaml"
 
 - name: Check if Scoop is installed
   ansible.windows.win_shell: scoop --version
