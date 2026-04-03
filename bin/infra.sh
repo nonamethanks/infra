@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Entrypoint to manage a system.
+
 source "$(dirname "$(dirname "$(readlink -f "$0")")")/lib/common.sh"
 
 function main {
