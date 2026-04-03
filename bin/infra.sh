@@ -81,16 +81,20 @@ function install_missing_mise_tools {
 
 function check_or_install_zsh {
     current_shell=$(getent passwd "$USER" | awk -F: '{print $NF}' | awk -F/ '{print $NF}')
-    if [[ $current_shell != "*/zsh" ]]; then return; fi
+    if [[ $current_shell != *zsh ]]; then
+        echo "Current shell is $current_shell != /bin/zsh. Installing..."
 
-    echo "Current shell is $current_shell != /bin/zsh. Installing..."
+        if ! command -v zsh; then
+            sudo apt-get install -y zsh # TODO: abstract this to use the system's package manager
+        fi
 
-    if ! command -v zsh; then
-        sudo apt-get install -y zsh # TODO: abstract this to use the system's package manager
+        echo "Setting ZSH as shell for user $USER."
+        sudo usermod --shell /bin/zsh "$USER"
     fi
 
-    echo "Setting ZSH as shell for user $USER."
-    sudo usermod --shell /bin/zsh "$USER"
+    if [[ ! -f "$HOME/.oh-my-zsh/oh-my-zsh.sh" ]]; then
+        sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+    fi
 }
 
 function set_ssh_for_github {
