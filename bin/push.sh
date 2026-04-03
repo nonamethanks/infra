@@ -42,8 +42,8 @@ function main {
     push "$SCRIPT_DIR/dotfiles"
 
     check_dirty "$SCRIPT_DIR"
-    check_commits "$SCRIPT_DIR/dotfiles"
-    push "$SCRIPT_DIR/dotfiles"
+    check_commits "$SCRIPT_DIR"
+    push "$SCRIPT_DIR"
 }
 
 main
