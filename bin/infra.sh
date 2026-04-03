@@ -9,6 +9,35 @@ abort_if_root
 export PATH="$PATH:$HOME/bin"
 export MISE_INSTALL_PATH=$HOME/bin/mise
 
+# Create symlinks to $HOME/bin
+function copy_bin_links {
+    local folder="$SCRIPT_DIR/bin"
+    local bin_dir="$HOME/bin"
+
+    mkdir -p "$bin_dir"
+
+    shopt -s nullglob # don't match empty glob
+
+    for file in "$folder"/*; do
+        [[ -f $file ]] || continue
+        dest="$bin_dir/$(basename "$file")"
+        [[ -f $dest ]] &&  continue
+        echo "Linking $file to $HOME/bin"
+        ln -sf "$(realpath "$file")" "$dest"
+    done
+
+    for link in "$bin_dir"/*; do
+        [[ -L $link ]] || continue
+        target="$(readlink "$link")"
+        if [[ $target == "$(  realpath "$folder")"/* ]] && [[ ! -e $link ]]; then
+            echo "Removing obsolete file $link"
+            rm "$link"
+        fi
+    done
+
+    shopt -u nullglob
+}
+
 # Install mise if missing
 function check_or_install_mise {
     if command -v mise > /dev/null; then return; fi
@@ -92,13 +121,14 @@ function set_ssh_for_github {
     fi
 
     # Authenticate with GitHub if needed
-    if ! gh auth status > /dev/null 2>&1; then
+    if ! grep -q "oauth_token" ~/.config/gh/hosts.yml; then
         gh auth login --hostname github.com --git-protocol ssh --web
         gh auth setup-git
     fi
 }
 
 function check_prerequisites {
+    copy_bin_links
     check_or_install_mise
     check_or_import_gpg
 
@@ -111,7 +141,6 @@ function check_prerequisites {
 }
 
 function main {
-    mkdir -p "$HOME/bin"
     check_prerequisites
 }
 
