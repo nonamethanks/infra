@@ -1,4 +1,24 @@
 {
-    // requires ansible-lint to be installed
-    "ansible.validation.enabled": false,
+    "mise.customBinaryExtensions": [
+        {
+            "extensionId": "mkhl.shfmt",
+            "toolSources": [
+                "shfmt"
+            ],
+            "vscodeSetting": {
+                "key": "shfmt.executablePath"
+            }
+        }
+    ],
+    "[shellscript]": {
+        "editor.defaultFormatter": "mkhl.shfmt"
+    },
+    "shellcheck.logLevel": "debug",
+    "shellcheck.executablePath": "${workspaceFolder}/.vscode/mise-tools/shellcheck",
+    "shellcheck.useWorkspaceRootAsCwd": true,
+    "shfmt.executablePath": "${workspaceFolder}/.vscode/mise-tools/shfmt",
+    "bashIde.shfmt.path": "", // bashIde sucks and doesnt support mise binaries
+    "bashIde.includeAllWorkspaceSymbols": true,
+    "bashIde.logLevel": "debug",
+    "bashIde.shellcheckPath": "", // bashIde sucks and doesnt support mise binaries
 }
